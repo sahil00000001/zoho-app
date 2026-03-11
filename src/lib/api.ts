@@ -132,6 +132,7 @@ export interface User {
   phoneNumber?: string;
   joiningDate?: string;
   isActive: boolean;
+  managerId?: string;
   department?: { id: string; name: string };
   manager?: { id: string; firstName: string; lastName: string; employeeId: string };
 }

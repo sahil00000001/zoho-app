@@ -88,7 +88,7 @@ export default function SignupPage() {
               {
                 icon: "📧",
                 title: "Already have an account?",
-                desc: "Sign in with your work email. You&apos;ll receive a one-time code.",
+                desc: "Sign in with your work email. You'll receive a one-time code.",
                 action: { label: "Sign in →", href: "/login" },
               },
               {
@@ -109,7 +109,7 @@ export default function SignupPage() {
                   <span className="text-xl shrink-0">{card.icon}</span>
                   <div className="flex-1">
                     <div className="text-sm font-semibold text-gray-900">{card.title}</div>
-                    <p className="text-xs text-gray-500 mt-0.5" dangerouslySetInnerHTML={{ __html: card.desc }} />
+                    <p className="text-xs text-gray-500 mt-0.5">{card.desc}</p>
                     {card.action && (
                       <Link
                         href={card.action.href}
