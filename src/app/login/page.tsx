@@ -20,7 +20,8 @@ function LoginForm() {
     setError('');
     setLoading(true);
     try {
-      await api.sendOtp(email);
+      const res = await api.sendOtp(email) as { message: string; devOtp?: string };
+      if (res?.devOtp) setOtp(res.devOtp);
       setStep('otp');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to send OTP');
