@@ -1,169 +1,158 @@
 "use client";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-
-const kpis = [
-  { label: "Present Today", value: "142", icon: "🟢", sub: "94% attendance rate", color: "rgb(220,38,38)" },
-  { label: "On Leave", value: "8", icon: "🏖", sub: "3 approved today", color: "rgb(249,115,22)" },
-  { label: "Pending Approvals", value: "3", icon: "⏳", sub: "Needs your action", color: "rgb(220,38,38)" },
-  { label: "Total Employees", value: "150", icon: "👥", sub: "2 joined this month", color: "rgb(249,115,22)" },
-];
-
-const recentActivity = [
-  { user: "Alice Johnson", action: "Marked attendance", time: "2 min ago", avatar: "AJ" },
-  { user: "Bob Smith", action: "Requested 2 days leave", time: "15 min ago", avatar: "BS" },
-  { user: "Carol Davis", action: "Uploaded employment contract", time: "1 hr ago", avatar: "CD" },
-  { user: "Dave Wilson", action: "Submitted expense report", time: "2 hr ago", avatar: "DW" },
-  { user: "Eve Martinez", action: "Leave approved by manager", time: "3 hr ago", avatar: "EM" },
-];
-
-const leaveBalance = [
-  { type: "Casual", used: 4, total: 12 },
-  { type: "Sick", used: 2, total: 8 },
-  { type: "Annual", used: 8, total: 20 },
-  { type: "Maternity", used: 0, total: 90 },
-];
-
-const upcomingLeaves = [
-  { name: "Riya Kapoor", dates: "Mar 15–17", type: "Annual", status: "Approved" },
-  { name: "Tom Hughes", dates: "Mar 18", type: "Sick", status: "Pending" },
-  { name: "Anika Singh", dates: "Mar 20–25", type: "Annual", status: "Approved" },
-];
-
-const quickActions = [
-  { label: "Mark Attendance", href: "/dashboard/attendance", icon: "🕐" },
-  { label: "Apply Leave", href: "/dashboard/attendance", icon: "📅" },
-  { label: "View Directory", href: "/dashboard/directory", icon: "👥" },
-  { label: "Upload Document", href: "/dashboard/documents", icon: "📄" },
-];
+import { useAuth } from "@/contexts/AuthContext";
+import { api, DashboardStats, ActivityItem } from "@/lib/api";
 
 export default function DashboardPage() {
+  const { user, isRole } = useAuth();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [activity, setActivity] = useState<ActivityItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    Promise.all([api.getStats(), api.getActivity()])
+      .then(([s, a]) => {
+        setStats(s as DashboardStats);
+        setActivity(a as ActivityItem[]);
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="w-8 h-8 rounded-full border-2 border-red-500/20 border-t-red-500 animate-spin" />
+      </div>
+    );
+  }
+
+  const greeting = user ? `Welcome back, ${user.firstName}` : 'Welcome back';
+
   return (
     <div className="space-y-6">
-      {/* Welcome banner */}
-      <div className="rounded-2xl p-6 text-white flex flex-col md:flex-row items-start md:items-center justify-between gap-4" style={{ background: "linear-gradient(90deg, rgb(220,38,38), rgb(249,115,22))" }}>
-        <div>
-          <h2 className="text-2xl font-black mb-1">Good morning, Alex 👋</h2>
-          <p className="text-white/80 text-sm">You have 3 pending approvals and 2 team members on leave today.</p>
+      {/* Header */}
+      <div className="glass-card rounded-2xl p-6" style={{ background: "linear-gradient(135deg, rgb(220,38,38) 0%, rgb(249,115,22) 100%)" }}>
+        <div className="flex items-start justify-between">
+          <div>
+            <h2 className="text-2xl font-black text-white">{greeting} 👋</h2>
+            <p className="text-white/75 mt-1 text-sm">
+              {isRole('ADMIN', 'HR') && `You have ${stats?.pendingLeaves ?? 0} pending leave requests to review.`}
+              {isRole('MANAGER') && `${stats?.pendingApprovals ?? 0} team requests need your attention.`}
+              {isRole('EMPLOYEE') && `You have ${stats?.pendingLeaves ?? 0} pending leave requests.`}
+            </p>
+          </div>
+          <div className="text-right">
+            <div className="text-white/60 text-xs mb-1">{user?.role}</div>
+            <div className="text-white font-semibold text-sm">{user?.department?.name || 'No Department'}</div>
+          </div>
         </div>
-        <Link href="/dashboard/approvals" className="bg-white/20 hover:bg-white/30 transition-colors text-white font-semibold px-5 py-2.5 rounded-xl text-sm border border-white/20 shrink-0">
-          Review Approvals →
-        </Link>
       </div>
 
-      {/* KPIs */}
+      {/* Stats cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpis.map((k) => (
-          <div key={k.label} className="glass-card rounded-2xl p-5 hover:shadow-lg transition-all duration-200 hover:-translate-y-0.5">
-            <div className="flex items-start justify-between mb-3">
-              <div className="text-2xl">{k.icon}</div>
-              <div className="h-1.5 w-12 rounded-full" style={{ background: `linear-gradient(90deg, ${k.color}, rgb(249,115,22))` }} />
-            </div>
-            <div className="text-3xl font-black mb-1" style={{ color: k.color }}>{k.value}</div>
-            <div className="text-xs font-semibold text-gray-700">{k.label}</div>
-            <div className="text-xs text-gray-400 mt-0.5">{k.sub}</div>
-          </div>
-        ))}
+        {isRole('ADMIN', 'HR') && stats && (
+          <>
+            <StatCard label="Total Employees" value={stats.totalEmployees ?? 0} icon="👤" color="blue" />
+            <StatCard label="Present Today" value={stats.presentToday ?? 0} icon="✅" color="green" />
+            <StatCard label="On Leave" value={stats.onLeaveToday ?? 0} icon="🌴" color="orange" />
+            <StatCard label="Pending Leaves" value={stats.pendingLeaves ?? 0} icon="⏳" color="red" />
+          </>
+        )}
+        {isRole('MANAGER') && stats && (
+          <>
+            <StatCard label="Team Size" value={stats.teamSize ?? 0} icon="👥" color="blue" />
+            <StatCard label="Present Today" value={stats.teamPresent ?? 0} icon="✅" color="green" />
+            <StatCard label="On Leave" value={stats.teamOnLeave ?? 0} icon="🌴" color="orange" />
+            <StatCard label="Pending Approvals" value={stats.pendingApprovals ?? 0} icon="⏳" color="red" />
+          </>
+        )}
+        {isRole('EMPLOYEE') && stats && (
+          <>
+            <StatCard label="Leaves Used" value={stats.leavesUsedThisYear ?? 0} icon="📅" color="blue" />
+            <StatCard label="Pending Requests" value={stats.pendingLeaves ?? 0} icon="⏳" color="orange" />
+          </>
+        )}
       </div>
 
-      {/* Quick actions */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {quickActions.map((q) => (
-          <Link key={q.label} href={q.href}
-            className="glass-card rounded-xl p-4 flex items-center gap-3 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 group border border-gray-100">
-            <span className="text-xl">{q.icon}</span>
-            <span className="text-sm font-semibold text-gray-700 group-hover:gradient-text">{q.label}</span>
-          </Link>
-        ))}
+      {/* Quick Actions */}
+      <div>
+        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Actions</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          <QuickAction href="/dashboard/attendance" icon="🕐" label="Mark Attendance" />
+          {isRole('EMPLOYEE', 'MANAGER', 'HR', 'ADMIN') && (
+            <QuickAction href="/dashboard/attendance" icon="🌴" label="Apply Leave" />
+          )}
+          <QuickAction href="/dashboard/directory" icon="👥" label="View Directory" />
+          {isRole('MANAGER', 'HR', 'ADMIN') && (
+            <QuickAction href="/dashboard/approvals" icon="✅" label="Review Approvals" />
+          )}
+          {isRole('ADMIN') && (
+            <QuickAction href="/dashboard/users" icon="⚙️" label="Manage Users" />
+          )}
+        </div>
       </div>
 
-      {/* Main grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Activity feed */}
-        <div className="lg:col-span-2 glass-card rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="font-bold text-gray-900">Recent Activity</h3>
-            <span className="text-xs font-medium" style={{ color: "rgb(220,38,38)" }}>View all →</span>
-          </div>
-          <div className="space-y-4">
-            {recentActivity.map((a) => (
-              <div key={a.user} className="flex items-start gap-3">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
-                  {a.avatar}
+      {/* Recent Activity */}
+      {activity.length > 0 && (
+        <div>
+          <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Recent Activity</h3>
+          <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden">
+            {activity.map((item) => (
+              <div key={item.id} className="flex items-center gap-4 px-5 py-3.5 border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm shrink-0">
+                  {item.type === 'leave' ? '🌴' : '📋'}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm text-gray-800"><span className="font-semibold">{a.user}</span> {a.action}</p>
-                  <p className="text-xs text-gray-400 mt-0.5">{a.time}</p>
+                  <p className="text-sm text-gray-700 truncate">{item.title}</p>
+                  <p className="text-xs text-gray-400">{new Date(item.date).toLocaleDateString()}</p>
                 </div>
+                <StatusBadge status={item.status} />
               </div>
             ))}
           </div>
         </div>
-
-        {/* Leave balance */}
-        <div className="glass-card rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="font-bold text-gray-900">My Leave Balance</h3>
-            <Link href="/dashboard/attendance" className="text-xs font-medium" style={{ color: "rgb(220,38,38)" }}>Apply →</Link>
-          </div>
-          <div className="space-y-4">
-            {leaveBalance.map((l) => (
-              <div key={l.type}>
-                <div className="flex justify-between items-center mb-1.5">
-                  <span className="text-sm font-medium text-gray-700">{l.type}</span>
-                  <span className="text-xs text-gray-500">{l.used} / {l.total} days</span>
-                </div>
-                <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-500" style={{ width: `${(l.used / l.total) * 100}%`, background: "linear-gradient(90deg, rgb(220,38,38), rgb(249,115,22))" }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Upcoming leaves */}
-      <div className="glass-card rounded-2xl p-6">
-        <div className="flex items-center justify-between mb-5">
-          <h3 className="font-bold text-gray-900">Upcoming Team Leaves</h3>
-          <Link href="/dashboard/attendance" className="text-xs font-medium" style={{ color: "rgb(220,38,38)" }}>View calendar →</Link>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-gray-100">
-                {["Employee", "Dates", "Type", "Status"].map((h) => (
-                  <th key={h} className="text-left text-xs font-semibold text-gray-500 uppercase tracking-wide pb-3 pr-6">{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {upcomingLeaves.map((l, i) => (
-                <tr key={i} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
-                  <td className="py-3 pr-6">
-                    <div className="flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
-                        {l.name.split(" ").map(n => n[0]).join("")}
-                      </div>
-                      <span className="text-sm font-medium text-gray-800">{l.name}</span>
-                    </div>
-                  </td>
-                  <td className="py-3 pr-6 text-sm text-gray-600">{l.dates}</td>
-                  <td className="py-3 pr-6">
-                    <span className="text-xs font-medium px-2.5 py-1 rounded-full" style={{ background: "rgba(220,38,38,0.08)", color: "rgb(220,38,38)" }}>
-                      {l.type}
-                    </span>
-                  </td>
-                  <td className="py-3">
-                    <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${l.status === "Approved" ? "bg-green-50 text-green-600" : "bg-orange-50 text-orange-500"}`}>
-                      {l.status}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      )}
     </div>
+  );
+}
+
+function StatCard({ label, value, icon, color }: { label: string; value: number; icon: string; color: 'blue' | 'green' | 'orange' | 'red' }) {
+  const colors = {
+    blue: 'bg-blue-50 text-blue-600',
+    green: 'bg-green-50 text-green-600',
+    orange: 'bg-orange-50 text-orange-600',
+    red: 'bg-red-50 text-red-600',
+  };
+  return (
+    <div className="bg-white rounded-2xl p-5 border border-gray-100 hover:shadow-md transition-shadow">
+      <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 ${colors[color]}`}>{icon}</div>
+      <div className="text-2xl font-black text-gray-900">{value}</div>
+      <div className="text-xs text-gray-500 mt-0.5">{label}</div>
+    </div>
+  );
+}
+
+function QuickAction({ href, icon, label }: { href: string; icon: string; label: string }) {
+  return (
+    <Link href={href} className="bg-white rounded-xl p-4 border border-gray-100 hover:shadow-md hover:border-red-100 transition-all flex flex-col items-center gap-2 text-center group">
+      <span className="text-2xl">{icon}</span>
+      <span className="text-xs font-medium text-gray-600 group-hover:text-gray-900">{label}</span>
+    </Link>
+  );
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const config: Record<string, string> = {
+    PENDING: 'bg-yellow-100 text-yellow-700',
+    APPROVED: 'bg-green-100 text-green-700',
+    REJECTED: 'bg-red-100 text-red-700',
+    CANCELLED: 'bg-gray-100 text-gray-700',
+  };
+  return (
+    <span className={`text-xs font-semibold px-2 py-1 rounded-full ${config[status] || 'bg-gray-100 text-gray-700'}`}>
+      {status}
+    </span>
   );
 }

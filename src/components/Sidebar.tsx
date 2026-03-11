@@ -2,18 +2,32 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
-const nav = [
-  { href: "/dashboard", label: "Dashboard", icon: "⊞" },
-  { href: "/dashboard/attendance", label: "Attendance", icon: "🕐" },
-  { href: "/dashboard/directory", label: "Directory", icon: "👥" },
-  { href: "/dashboard/approvals", label: "Approvals", icon: "✅" },
-  { href: "/dashboard/documents", label: "Documents", icon: "📁" },
+const ALL_NAV = [
+  { href: "/dashboard", label: "Dashboard", icon: "⊞", module: "dashboard" },
+  { href: "/dashboard/attendance", label: "Attendance", icon: "🕐", module: "attendance" },
+  { href: "/dashboard/directory", label: "Directory", icon: "👥", module: "directory" },
+  { href: "/dashboard/approvals", label: "Approvals", icon: "✅", module: "approvals" },
+  { href: "/dashboard/documents", label: "Documents", icon: "📁", module: "documents" },
+  { href: "/dashboard/users", label: "User Management", icon: "⚙️", module: "users" },
 ];
+
+const ROLE_BADGES: Record<string, { label: string; color: string }> = {
+  EMPLOYEE: { label: "Employee", color: "bg-blue-100 text-blue-700" },
+  MANAGER: { label: "Manager", color: "bg-green-100 text-green-700" },
+  HR: { label: "HR", color: "bg-purple-100 text-purple-700" },
+  ADMIN: { label: "Super Admin", color: "bg-red-100 text-red-700" },
+};
 
 export default function Sidebar() {
   const path = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const { user, canAccess, logout } = useAuth();
+
+  const navItems = ALL_NAV.filter((item) => canAccess(item.module));
+  const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : 'U';
+  const roleBadge = user ? ROLE_BADGES[user.role] : null;
 
   return (
     <aside
@@ -25,15 +39,13 @@ export default function Sidebar() {
         <div className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
           <span className="text-white font-black text-sm">P</span>
         </div>
-        {!collapsed && (
-          <span className="font-black text-lg text-gray-900">People<span className="gradient-text">OS</span></span>
-        )}
+        {!collapsed && <span className="font-black text-lg text-gray-900">People<span className="gradient-text">OS</span></span>}
       </div>
 
       {/* Nav */}
       <nav className="flex-1 py-4 px-2">
-        {nav.map((item) => {
-          const active = path === item.href;
+        {navItems.map((item) => {
+          const active = path === item.href || (item.href !== '/dashboard' && path.startsWith(item.href));
           return (
             <Link
               key={item.href}
@@ -46,9 +58,7 @@ export default function Sidebar() {
             >
               <span className="text-base shrink-0">{item.icon}</span>
               {!collapsed && <span>{item.label}</span>}
-              {active && !collapsed && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/60" />
-              )}
+              {active && !collapsed && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-white/60" />}
             </Link>
           );
         })}
@@ -56,17 +66,31 @@ export default function Sidebar() {
 
       {/* Bottom */}
       <div className="p-3 border-t border-gray-100">
-        {!collapsed && (
-          <div className="flex items-center gap-2 px-2 py-2 rounded-xl hover:bg-gray-50 cursor-pointer mb-2 transition-colors">
-            <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
-              AK
+        {!collapsed && user && (
+          <div className="px-2 py-2 rounded-xl mb-2">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center text-white text-xs font-bold shrink-0" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
+                {initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-semibold text-gray-900 truncate">{user.firstName} {user.lastName}</div>
+                <div className="text-xs text-gray-400 truncate">{user.designation || user.email}</div>
+              </div>
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-xs font-semibold text-gray-900 truncate">Alex Kumar</div>
-              <div className="text-xs text-gray-400 truncate">HR Manager</div>
-            </div>
-            <span className="text-gray-400 text-xs">⚙</span>
+            {roleBadge && (
+              <span className={`text-xs font-semibold px-2 py-0.5 rounded-full ${roleBadge.color}`}>
+                {roleBadge.label}
+              </span>
+            )}
           </div>
+        )}
+        {!collapsed && (
+          <button
+            onClick={logout}
+            className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-gray-400 hover:bg-red-50 hover:text-red-500 transition-colors text-xs font-medium mb-1"
+          >
+            ↩ Sign out
+          </button>
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
