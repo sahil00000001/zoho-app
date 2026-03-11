@@ -81,9 +81,7 @@ export default function DashboardPage() {
         <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-3">Quick Actions</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           <QuickAction href="/dashboard/attendance" icon="🕐" label="Mark Attendance" />
-          {isRole('EMPLOYEE', 'MANAGER', 'HR', 'ADMIN') && (
-            <QuickAction href="/dashboard/attendance" icon="🌴" label="Apply Leave" />
-          )}
+          <QuickAction href="/dashboard/attendance" icon="🌴" label="Apply Leave" />
           <QuickAction href="/dashboard/directory" icon="👥" label="View Directory" />
           {isRole('MANAGER', 'HR', 'ADMIN') && (
             <QuickAction href="/dashboard/approvals" icon="✅" label="Review Approvals" />
