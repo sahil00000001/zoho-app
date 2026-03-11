@@ -56,7 +56,7 @@ async function request<T>(path: string, options: RequestInit = {}, retry = true)
 export const api = {
   // Auth
   sendOtp: (email: string) =>
-    request<{ message: string; devOtp?: string; emailSent?: boolean }>('/api/auth/login', { method: 'POST', body: JSON.stringify({ email }) }),
+    request('/api/auth/login', { method: 'POST', body: JSON.stringify({ email }) }),
   verifyOtp: (email: string, otp: string) =>
     request<{ accessToken: string; refreshToken: string; user: User }>('/api/auth/verify-otp', {
       method: 'POST',
