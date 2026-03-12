@@ -24,6 +24,7 @@ const MODULE_ACCESS: Record<string, string[]> = {
   users: ['ADMIN'],
   onboarding: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
   profile: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
+  announcements: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {

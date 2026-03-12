@@ -146,6 +146,16 @@ export const api = {
   getAllKRA: () => request('/api/profile/kra/all'),
   getProfileById: (userId: string) => request(`/api/profile/${userId}`),
 
+  // Announcements
+  getAnnouncements: () => request('/api/announcements'),
+  getAllAnnouncements: () => request('/api/announcements/all'),
+  createAnnouncement: (data: AnnouncementData) =>
+    request('/api/announcements', { method: 'POST', body: JSON.stringify(data) }),
+  updateAnnouncement: (id: string, data: Partial<AnnouncementData>) =>
+    request(`/api/announcements/${id}`, { method: 'PATCH', body: JSON.stringify(data) }),
+  deleteAnnouncement: (id: string) => request(`/api/announcements/${id}`, { method: 'DELETE' }),
+  getCelebrations: () => request('/api/announcements/celebrations'),
+
   // Onboarding
   initOnboarding: (userId: string) => request(`/api/onboarding/init/${userId}`, { method: 'POST' }),
   getMyOnboarding: () => request('/api/onboarding/me'),
@@ -267,6 +277,17 @@ export interface ProfileUpdateData {
   emergencyName?: string;
   emergencyPhone?: string;
   emergencyRelation?: string;
+  dateOfBirth?: string;
+}
+
+export interface AnnouncementData {
+  title: string;
+  content: string;
+  type?: 'COMPANY' | 'DEPARTMENT';
+  priority?: 'HIGH' | 'NORMAL' | 'LOW';
+  departmentId?: string;
+  expiresAt?: string;
+  isPinned?: boolean;
 }
 
 export interface CertificationData {
