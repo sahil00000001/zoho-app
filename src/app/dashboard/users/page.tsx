@@ -17,6 +17,7 @@ export default function UsersPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [creating, setCreating] = useState(false);
   const [createError, setCreateError] = useState('');
+  const [fetchError, setFetchError] = useState('');
   const [form, setForm] = useState<CreateUserData>({
     email: '', firstName: '', lastName: '', role: 'EMPLOYEE',
     designation: '', departmentId: '', phoneNumber: '',
@@ -30,6 +31,7 @@ export default function UsersPage() {
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
+    setFetchError('');
     try {
       const [u, d] = await Promise.all([
         api.getUsers({ search: search || undefined, role: roleFilter || undefined }),
@@ -37,6 +39,8 @@ export default function UsersPage() {
       ]);
       setUsers(u as User[]);
       setDepartments(d as Department[]);
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : 'Failed to load users');
     } finally {
       setLoading(false);
     }
@@ -115,6 +119,13 @@ export default function UsersPage() {
         </select>
       </div>
 
+      {fetchError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm px-4 py-3 rounded-xl flex items-center justify-between">
+          <span>{fetchError}</span>
+          <button onClick={fetchUsers} className="text-red-600 font-semibold hover:underline text-xs">Retry</button>
+        </div>
+      )}
+
       {/* Users table */}
       {loading ? (
         <div className="flex justify-center py-12">
@@ -135,6 +146,9 @@ export default function UsersPage() {
                 </tr>
               </thead>
               <tbody>
+                {users.length === 0 && !loading && (
+                  <tr><td colSpan={6} className="text-center py-10 text-sm text-gray-400">No users found</td></tr>
+                )}
                 {users.map((user) => (
                   <tr key={user.id} className="border-b border-gray-50 last:border-0 hover:bg-gray-50/50 transition-colors">
                     <td className="px-5 py-3.5">

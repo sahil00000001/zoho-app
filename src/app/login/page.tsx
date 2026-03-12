@@ -103,7 +103,8 @@ function LoginForm() {
           </button>
           <h1 className="text-3xl font-black text-gray-900 mb-2">Check your email</h1>
           <p className="text-gray-500 mb-2">We sent a 6-digit code to</p>
-          <p className="font-semibold text-gray-800 mb-8">{email}</p>
+          <p className="font-semibold text-gray-800 mb-3">{email}</p>
+          <p className="text-xs text-gray-400 mb-6">Can&apos;t find it? Check your spam/junk folder. The code expires in 10 minutes.</p>
 
           <form onSubmit={handleOtpSubmit} className="space-y-5">
             <div>
