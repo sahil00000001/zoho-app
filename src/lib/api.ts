@@ -78,15 +78,24 @@ export const api = {
   getActivity: () => request<ActivityItem[]>('/api/dashboard/activity'),
 
   // Attendance
-  checkIn: (location?: { lat: number; lng: number; address?: string }) =>
-    request('/api/attendance/check-in', { method: 'POST', body: JSON.stringify(location ?? {}) }),
+  checkIn: (location?: { lat: number; lng: number; address?: string }, isWFH?: boolean) =>
+    request('/api/attendance/check-in', { method: 'POST', body: JSON.stringify({ ...location, isWFH }) }),
   checkOut: (location?: { lat: number; lng: number; address?: string }) =>
     request('/api/attendance/check-out', { method: 'POST', body: JSON.stringify(location ?? {}) }),
   getTodayAttendance: () => request('/api/attendance/today'),
   getAttendanceHistory: (limit?: number) =>
     request(`/api/attendance/history${limit ? `?limit=${limit}` : ''}`),
+  getMonthlyAttendance: (month?: string) =>
+    request(`/api/attendance/monthly${month ? `?month=${month}` : ''}`),
   getTeamAttendance: (date?: string) =>
     request(`/api/attendance/team${date ? `?date=${date}` : ''}`),
+  getRegularizations: () => request('/api/attendance/regularizations'),
+  submitRegularization: (data: { date: string; reason: string; requestedCheckIn?: string; requestedCheckOut?: string }) =>
+    request('/api/attendance/regularizations', { method: 'POST', body: JSON.stringify(data) }),
+  approveRegularization: (id: string) =>
+    request(`/api/attendance/regularizations/${id}/approve`, { method: 'PATCH' }),
+  rejectRegularization: (id: string, reviewNote?: string) =>
+    request(`/api/attendance/regularizations/${id}/reject`, { method: 'PATCH', body: JSON.stringify({ reviewNote }) }),
 
   // Leaves
   getMyLeaves: () => request('/api/leaves/my'),
