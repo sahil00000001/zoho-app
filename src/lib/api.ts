@@ -78,8 +78,10 @@ export const api = {
   getActivity: () => request<ActivityItem[]>('/api/dashboard/activity'),
 
   // Attendance
-  checkIn: () => request('/api/attendance/check-in', { method: 'POST' }),
-  checkOut: () => request('/api/attendance/check-out', { method: 'POST' }),
+  checkIn: (location?: { lat: number; lng: number; address?: string }) =>
+    request('/api/attendance/check-in', { method: 'POST', body: JSON.stringify(location ?? {}) }),
+  checkOut: (location?: { lat: number; lng: number; address?: string }) =>
+    request('/api/attendance/check-out', { method: 'POST', body: JSON.stringify(location ?? {}) }),
   getTodayAttendance: () => request('/api/attendance/today'),
   getAttendanceHistory: (limit?: number) =>
     request(`/api/attendance/history${limit ? `?limit=${limit}` : ''}`),

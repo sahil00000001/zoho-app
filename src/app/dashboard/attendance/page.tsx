@@ -7,7 +7,9 @@ interface AttendanceRecord {
   id: string;
   date: string;
   checkInTime: string | null;
+  checkInAddress: string | null;
   checkOutTime: string | null;
+  checkOutAddress: string | null;
   workHours: number | null;
   status: string;
   user: { firstName: string; lastName: string; employeeId: string; department?: { name: string } };
@@ -45,11 +47,34 @@ export default function AttendancePage() {
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
+  const getLocation = (): Promise<{ lat: number; lng: number; address?: string } | undefined> =>
+    new Promise(resolve => {
+      if (!navigator.geolocation) return resolve(undefined);
+      navigator.geolocation.getCurrentPosition(
+        async pos => {
+          const { latitude: lat, longitude: lng } = pos.coords;
+          try {
+            const res = await fetch(
+              `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+              { headers: { 'Accept-Language': 'en' } }
+            );
+            const data = await res.json() as { display_name?: string };
+            resolve({ lat, lng, address: data.display_name });
+          } catch {
+            resolve({ lat, lng });
+          }
+        },
+        () => resolve(undefined),
+        { timeout: 8000 }
+      );
+    });
+
   const handleCheckIn = async () => {
     setActionLoading(true);
     setError('');
     try {
-      const record = await api.checkIn();
+      const location = await getLocation();
+      const record = await api.checkIn(location);
       setTodayRecord(record as AttendanceRecord);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to check in');
@@ -62,7 +87,8 @@ export default function AttendancePage() {
     setActionLoading(true);
     setError('');
     try {
-      const record = await api.checkOut();
+      const location = await getLocation();
+      const record = await api.checkOut(location);
       setTodayRecord(record as AttendanceRecord);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to check out');
@@ -111,10 +137,22 @@ export default function AttendancePage() {
         </div>
 
         {todayRecord && (
-          <div className="mb-4">
+          <div className="mb-4 space-y-2">
             <span className={`text-sm font-semibold px-3 py-1 rounded-full ${statusColors[todayRecord.status]}`}>
               {todayRecord.status}
             </span>
+            {todayRecord.checkInAddress && (
+              <div className="flex items-start gap-2 text-xs text-gray-500 mt-2">
+                <span>📍</span>
+                <span><span className="font-medium text-gray-700">Check-in:</span> {todayRecord.checkInAddress}</span>
+              </div>
+            )}
+            {todayRecord.checkOutAddress && (
+              <div className="flex items-start gap-2 text-xs text-gray-500">
+                <span>📍</span>
+                <span><span className="font-medium text-gray-700">Check-out:</span> {todayRecord.checkOutAddress}</span>
+              </div>
+            )}
           </div>
         )}
 
