@@ -112,6 +112,21 @@ export const api = {
   getLeaveBalance: () => request('/api/leaves/balance/me'),
   getLeaveTypes: () => request('/api/leave-types'),
 
+  // Holidays
+  getHolidays: (year?: number) => request(`/api/holidays${year ? `?year=${year}` : ''}`),
+  addHoliday: (data: { name: string; date: string; type?: string }) =>
+    request('/api/holidays', { method: 'POST', body: JSON.stringify(data) }),
+  deleteHoliday: (id: string) => request(`/api/holidays/${id}`, { method: 'DELETE' }),
+  seedHolidays: () => request('/api/holidays/seed', { method: 'POST' }),
+
+  // Comp-off
+  getCompOffs: () => request('/api/compoffs'),
+  getCompOffBalance: () => request('/api/compoffs/balance'),
+  requestCompOff: (data: { earnedDate: string; reason: string }) =>
+    request('/api/compoffs', { method: 'POST', body: JSON.stringify(data) }),
+  approveCompOff: (id: string) => request(`/api/compoffs/${id}/approve`, { method: 'PATCH' }),
+  rejectCompOff: (id: string) => request(`/api/compoffs/${id}/reject`, { method: 'PATCH' }),
+
   // Users / Directory
   getUsers: (params?: { role?: string; departmentId?: string; isActive?: string; search?: string }) => {
     const qs = new URLSearchParams(params as Record<string, string>).toString();

@@ -8,6 +8,7 @@ const ALL_NAV = [
   { href: "/dashboard", label: "Dashboard", icon: "⊞", module: "dashboard" },
   { href: "/dashboard/attendance", label: "Attendance", icon: "🕐", module: "attendance" },
   { href: "/dashboard/directory", label: "Directory", icon: "👥", module: "directory" },
+  { href: "/dashboard/leaves", label: "Leaves", icon: "🌿", module: "leaves" },
   { href: "/dashboard/approvals", label: "Approvals", icon: "✅", module: "approvals" },
   { href: "/dashboard/documents", label: "Documents", icon: "📁", module: "documents" },
   { href: "/dashboard/users", label: "User Management", icon: "⚙️", module: "users" },

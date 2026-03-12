@@ -18,6 +18,7 @@ const MODULE_ACCESS: Record<string, string[]> = {
   dashboard: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
   attendance: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
   directory: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
+  leaves: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
   approvals: ['MANAGER', 'HR', 'ADMIN'],
   documents: ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
   users: ['ADMIN'],
