@@ -11,6 +11,7 @@ const ALL_NAV = [
   { href: "/dashboard/leaves", label: "Leaves", icon: "🌿", module: "leaves" },
   { href: "/dashboard/approvals", label: "Approvals", icon: "✅", module: "approvals" },
   { href: "/dashboard/documents", label: "Documents", icon: "📁", module: "documents" },
+  { href: "/dashboard/onboarding", label: "Onboarding", icon: "🚀", module: "onboarding" },
   { href: "/dashboard/users", label: "User Management", icon: "⚙️", module: "users" },
 ];
 

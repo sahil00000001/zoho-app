@@ -127,6 +127,36 @@ export const api = {
   approveCompOff: (id: string) => request(`/api/compoffs/${id}/approve`, { method: 'PATCH' }),
   rejectCompOff: (id: string) => request(`/api/compoffs/${id}/reject`, { method: 'PATCH' }),
 
+  // Onboarding
+  initOnboarding: (userId: string) => request(`/api/onboarding/init/${userId}`, { method: 'POST' }),
+  getMyOnboarding: () => request('/api/onboarding/me'),
+  getOnboarding: (userId: string) => request(`/api/onboarding/${userId}`),
+  updateOnboardingTask: (id: string, status: string, notes?: string) =>
+    request(`/api/onboarding/tasks/${id}`, { method: 'PATCH', body: JSON.stringify({ status, notes }) }),
+  addOnboardingTask: (userId: string, data: { title: string; description?: string; category: string; dueDay: number; responsibleRole?: string }) =>
+    request(`/api/onboarding/${userId}/tasks`, { method: 'POST', body: JSON.stringify(data) }),
+  deleteOnboardingTask: (id: string) => request(`/api/onboarding/tasks/${id}`, { method: 'DELETE' }),
+  listAssets: (status?: string) => {
+    const qs = status ? `?status=${status}` : '';
+    return request(`/api/onboarding/assets/list${qs}`);
+  },
+  addAsset: (data: { type: string; name: string; serialNumber?: string; model?: string; notes?: string }) =>
+    request('/api/onboarding/assets', { method: 'POST', body: JSON.stringify(data) }),
+  assignAsset: (assetId: string, userId: string, condition?: string, notes?: string) =>
+    request(`/api/onboarding/assets/${assetId}/assign`, { method: 'POST', body: JSON.stringify({ userId, condition, notes }) }),
+  returnAsset: (assignmentId: string) =>
+    request(`/api/onboarding/assets/assignments/${assignmentId}/return`, { method: 'PATCH' }),
+  getUserAssets: (userId: string) => request(`/api/onboarding/assets/user/${userId}`),
+  getMyAssets: () => request('/api/onboarding/assets/my'),
+  listITProvisions: (userId?: string) => {
+    const qs = userId ? `?userId=${userId}` : '';
+    return request(`/api/onboarding/it-provisions${qs}`);
+  },
+  updateITProvision: (id: string, status: string, notes?: string) =>
+    request(`/api/onboarding/it-provisions/${id}`, { method: 'PATCH', body: JSON.stringify({ status, notes }) }),
+  addITProvision: (userId: string, item: string) =>
+    request(`/api/onboarding/${userId}/it-provisions`, { method: 'POST', body: JSON.stringify({ item }) }),
+
   // Users / Directory
   getUsers: (params?: { role?: string; departmentId?: string; isActive?: string; search?: string }) => {
     const qs = new URLSearchParams(params as Record<string, string>).toString();
