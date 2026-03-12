@@ -127,6 +127,25 @@ export const api = {
   approveCompOff: (id: string) => request(`/api/compoffs/${id}/approve`, { method: 'PATCH' }),
   rejectCompOff: (id: string) => request(`/api/compoffs/${id}/reject`, { method: 'PATCH' }),
 
+  // Profile
+  getMyProfile: () => request('/api/profile/me'),
+  updateProfile: (data: Partial<ProfileUpdateData>) =>
+    request('/api/profile/me', { method: 'PATCH', body: JSON.stringify(data) }),
+  updateBasicInfo: (data: { phoneNumber?: string; designation?: string }) =>
+    request('/api/profile/me/basic', { method: 'PATCH', body: JSON.stringify(data) }),
+  addSkill: (name: string, level?: string) =>
+    request('/api/profile/me/skills', { method: 'POST', body: JSON.stringify({ name, level }) }),
+  deleteSkill: (id: string) => request(`/api/profile/me/skills/${id}`, { method: 'DELETE' }),
+  addCertification: (data: CertificationData) =>
+    request('/api/profile/me/certifications', { method: 'POST', body: JSON.stringify(data) }),
+  deleteCertification: (id: string) => request(`/api/profile/me/certifications/${id}`, { method: 'DELETE' }),
+  getMyKRA: () => request('/api/profile/me/kra'),
+  uploadKRA: (data: { title: string; period?: string; fileUrl: string; fileName: string; fileSize?: number; mimeType?: string }) =>
+    request('/api/profile/me/kra', { method: 'POST', body: JSON.stringify(data) }),
+  deleteKRA: (id: string) => request(`/api/profile/me/kra/${id}`, { method: 'DELETE' }),
+  getAllKRA: () => request('/api/profile/kra/all'),
+  getProfileById: (userId: string) => request(`/api/profile/${userId}`),
+
   // Onboarding
   initOnboarding: (userId: string) => request(`/api/onboarding/init/${userId}`, { method: 'POST' }),
   getMyOnboarding: () => request('/api/onboarding/me'),
@@ -236,4 +255,24 @@ export interface CreateUserData {
   departmentId?: string;
   managerId?: string;
   joiningDate?: string;
+}
+
+export interface ProfileUpdateData {
+  photoUrl?: string;
+  bio?: string;
+  address?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  emergencyName?: string;
+  emergencyPhone?: string;
+  emergencyRelation?: string;
+}
+
+export interface CertificationData {
+  name: string;
+  issuer?: string;
+  issueDate?: string;
+  expiryDate?: string;
+  credentialId?: string;
 }
