@@ -58,11 +58,11 @@ export default function Sidebar() {
           className="w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
           style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}
         >
-          <span className="text-white font-black text-sm">P</span>
+          <span className="text-white font-black text-sm">A</span>
         </div>
         {!collapsed && (
-          <span className="font-black text-base text-gray-900 tracking-tight">
-            People<span className="gradient-text">OS</span>
+          <span className="font-black text-base tracking-tight gradient-text">
+            Atlas
           </span>
         )}
       </div>

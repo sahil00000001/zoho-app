@@ -21,9 +21,9 @@ export default function SignupPage() {
         <div className="relative z-10">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
-              <span className="text-white font-black text-base">P</span>
+              <span className="text-white font-black text-base">A</span>
             </div>
-            <span className="text-white font-black text-xl">PeopleOS</span>
+            <span className="text-white font-black text-xl">Atlas</span>
           </Link>
         </div>
         <div className="relative z-10">
@@ -31,7 +31,7 @@ export default function SignupPage() {
             Enterprise-grade HR,<br />without the complexity.
           </h2>
           <p className="text-white/75 text-lg leading-relaxed mb-10">
-            PeopleOS is a fully managed HR platform. Your system administrator
+            Atlas is a fully managed HR platform. Your system administrator
             creates and manages all employee accounts.
           </p>
           <div className="space-y-4">
@@ -62,9 +62,9 @@ export default function SignupPage() {
         <div className="lg:hidden mb-8">
           <Link href="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
-              <span className="text-white font-black text-sm">P</span>
+              <span className="text-white font-black text-sm">A</span>
             </div>
-            <span className="font-black text-xl text-gray-900">People<span className="gradient-text">OS</span></span>
+            <span className="font-black text-xl tracking-tight gradient-text">Atlas</span>
           </Link>
         </div>
 
@@ -79,7 +79,7 @@ export default function SignupPage() {
 
           <h1 className="text-3xl font-black text-gray-900 mb-2">Account access</h1>
           <p className="text-gray-500 mb-8">
-            PeopleOS accounts are created and managed by your organization&apos;s system administrator.
+            Atlas accounts are created and managed by your organization&apos;s system administrator.
           </p>
 
           {/* Info cards */}
@@ -93,7 +93,7 @@ export default function SignupPage() {
               },
               {
                 icon: "👤",
-                title: "New to PeopleOS?",
+                title: "New to Atlas?",
                 desc: "Ask your HR team or system administrator to create your account.",
                 action: null,
               },

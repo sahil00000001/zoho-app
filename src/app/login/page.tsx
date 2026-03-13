@@ -187,9 +187,9 @@ export default function LoginPage() {
           <div className="relative z-10">
             <Link href="/" className="flex items-center gap-2">
               <div className="w-9 h-9 rounded-xl bg-white/20 flex items-center justify-center">
-                <span className="text-white font-black text-base">P</span>
+                <span className="text-white font-black text-base">A</span>
               </div>
-              <span className="text-white font-black text-xl">PeopleOS</span>
+              <span className="text-white font-black text-xl">Atlas</span>
             </Link>
           </div>
           <div className="relative z-10">

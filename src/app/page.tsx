@@ -41,7 +41,7 @@ const testimonials = [
     name: "Sarah Chen",
     role: "Head of People, Nexus Labs",
     avatar: "SC",
-    quote: "PeopleOS replaced three separate tools. Our team adopted it in a week — no training needed.",
+    quote: "Atlas replaced three separate tools. Our team adopted it in a week — no training needed.",
   },
   {
     name: "Marcus Webb",
@@ -85,9 +85,9 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
-              <span className="text-white font-black text-sm">P</span>
+              <span className="text-white font-black text-sm">A</span>
             </div>
-            <span className="font-bold text-xl text-gray-900">People<span className="gradient-text">OS</span></span>
+            <span className="font-bold text-xl text-gray-900"><span className="gradient-text">Atlas</span></span>
           </div>
           <div className="hidden md:flex items-center gap-8">
             {["Features", "Testimonials", "Pricing"].map((item) => (
@@ -154,14 +154,14 @@ export default function LandingPage() {
               <div className="w-3 h-3 rounded-full bg-red-400" />
               <div className="w-3 h-3 rounded-full bg-yellow-400" />
               <div className="w-3 h-3 rounded-full bg-green-400" />
-              <div className="flex-1 mx-4 bg-white rounded-md px-3 py-1 text-xs text-gray-400 border border-gray-200">app.peopleos.io/dashboard</div>
+              <div className="flex-1 mx-4 bg-white rounded-md px-3 py-1 text-xs text-gray-400 border border-gray-200">app.atlaspeople.io/dashboard</div>
             </div>
             <div className="bg-white p-6">
               <div className="flex gap-6">
                 <div className="w-44 hidden md:block shrink-0">
                   <div className="flex items-center gap-2 mb-5">
                     <div className="w-6 h-6 rounded-md" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }} />
-                    <span className="font-black text-sm gradient-text">PeopleOS</span>
+                    <span className="font-black text-sm gradient-text">Atlas</span>
                   </div>
                   {["Dashboard", "Attendance", "Directory", "Approvals", "Documents"].map((item, i) => (
                     <div key={item} className={`flex items-center gap-2 px-3 py-2 rounded-lg mb-1 text-xs font-medium ${i === 0 ? "text-white" : "text-gray-500"}`} style={i === 0 ? { background: "linear-gradient(90deg, rgb(220,38,38), rgb(249,115,22))" } : {}}>
@@ -286,14 +286,14 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
-              <span className="text-white font-black text-xs">P</span>
+              <span className="text-white font-black text-xs">A</span>
             </div>
-            <span className="font-bold text-gray-700">People<span className="gradient-text">OS</span></span>
+            <span className="font-bold text-gray-700"><span className="gradient-text">Atlas</span></span>
           </div>
           <div className="flex gap-6 text-sm text-gray-400">
             {["Privacy", "Terms", "Support"].map((l) => <a key={l} href="#" className="hover:text-gray-600 transition-colors">{l}</a>)}
           </div>
-          <p className="text-sm text-gray-400">© 2026 PeopleOS. Built for humans.</p>
+          <p className="text-sm text-gray-400">© 2026 Atlas. Built for humans.</p>
         </div>
       </footer>
     </div>
