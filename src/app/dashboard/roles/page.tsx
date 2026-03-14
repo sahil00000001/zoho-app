@@ -35,12 +35,34 @@ export default function RolesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    try {
-      const [r, m] = await Promise.all([api.getRoles(), api.getModules()]);
+    // Load modules and roles independently so one failure doesn't block the other
+    const [modulesResult, rolesResult] = await Promise.allSettled([
+      api.getModules(),
+      api.getRoles(),
+    ]);
+
+    if (modulesResult.status === "fulfilled") {
+      setModules(modulesResult.value);
+    } else {
+      showToast("Could not load modules list", "error");
+    }
+
+    if (rolesResult.status === "fulfilled") {
+      const r = rolesResult.value;
       setRoles(r);
-      setModules(m);
-    } catch { showToast("Failed to load roles", "error"); }
-    finally { setLoading(false); }
+      // Auto-seed system roles if none exist
+      if (r.length === 0) {
+        try {
+          await api.seedRoles();
+          const seeded = await api.getRoles();
+          setRoles(seeded);
+        } catch { /* seed failed, user can click button manually */ }
+      }
+    } else {
+      showToast("Could not load roles", "error");
+    }
+
+    setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
