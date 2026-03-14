@@ -58,20 +58,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const { accessToken } = api.getTokens();
     if (accessToken) {
-      Promise.all([
-        api.getMe(),
-        api.getMyPermissions(),
-      ]).then(([u, perms]) => {
-        setUser(u);
-        setPermissions(perms);
-        localStorage.setItem('user', JSON.stringify(u));
-        localStorage.setItem('permissions', JSON.stringify(perms));
-      }).catch(() => {
-        api.clearTokens();
-        localStorage.removeItem('permissions');
-        setUser(null);
-        setPermissions(null);
-      }).finally(() => setLoading(false));
+      // getMe() is the auth gate — if it fails, clear session
+      // getMyPermissions() is best-effort — failure must never log the user out
+      api.getMe()
+        .then(async (u) => {
+          setUser(u);
+          localStorage.setItem('user', JSON.stringify(u));
+          try {
+            const perms = await api.getMyPermissions();
+            setPermissions(perms);
+            localStorage.setItem('permissions', JSON.stringify(perms));
+          } catch {
+            // permissions endpoint failed — fall back to defaults, keep user logged in
+          }
+        })
+        .catch(() => {
+          api.clearTokens();
+          localStorage.removeItem('permissions');
+          setUser(null);
+          setPermissions(null);
+        })
+        .finally(() => setLoading(false));
     } else {
       setLoading(false);
     }
