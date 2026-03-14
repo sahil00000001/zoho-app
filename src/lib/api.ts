@@ -43,9 +43,10 @@ async function request<T>(path: string, options: RequestInit = {}, retry = true)
         return request<T>(path, options, false);
       }
     } catch {}
+    // Clear tokens and throw — let AuthGuard handle the redirect
+    // (never use window.location here — it fires mid-login and sends users back to /login)
     clearTokens();
-    window.location.href = '/login';
-    throw new Error('Session expired');
+    throw new Error('Session expired. Please log in again.');
   }
 
   const data = await res.json();

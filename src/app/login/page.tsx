@@ -221,7 +221,7 @@ export default function LoginPage() {
               <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "linear-gradient(135deg, rgb(220,38,38), rgb(249,115,22))" }}>
                 <span className="text-white font-black text-sm">P</span>
               </div>
-              <span className="font-black text-xl text-gray-900">People<span className="gradient-text">OS</span></span>
+              <span className="font-black text-xl text-gray-900">Atlas</span>
             </Link>
           </div>
           <LoginForm />
