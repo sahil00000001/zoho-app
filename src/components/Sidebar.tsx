@@ -15,6 +15,8 @@ const ALL_NAV = [
   { href: "/dashboard/approvals",     label: "Approvals",      icon: "✅",  module: "approvals" },
   { href: "/dashboard/documents",     label: "Documents",      icon: "📁",  module: "documents" },
   { href: "/dashboard/users",         label: "User Management",icon: "⚙️",  module: "users" },
+  { href: "/dashboard/roles",         label: "Role Management", icon: "🔑",  module: "roles" },
+  { href: "/dashboard/audit",         label: "Audit Logs",      icon: "📋",  module: "audit" },
 ];
 
 const ROLE_BADGES: Record<string, { label: string; bg: string; text: string }> = {
@@ -27,7 +29,7 @@ const ROLE_BADGES: Record<string, { label: string; bg: string; text: string }> =
 const NAV_GROUPS = [
   { label: "Main", items: ["dashboard", "attendance", "leaves", "announcements"] },
   { label: "Team", items: ["directory", "profile", "onboarding", "approvals"] },
-  { label: "Admin", items: ["documents", "users"] },
+  { label: "Admin", items: ["documents", "users", "roles", "audit"] },
 ];
 
 export default function Sidebar() {
@@ -37,7 +39,10 @@ export default function Sidebar() {
 
   const visibleNav = ALL_NAV.filter(item => canAccess(item.module));
   const initials = user ? `${user.firstName[0]}${user.lastName[0]}`.toUpperCase() : "U";
-  const badge = user ? ROLE_BADGES[user.role] : null;
+  const defaultBadge = user ? ROLE_BADGES[user.role] : null;
+  const customRoleName = user?.customRole?.name;
+  const customRoleColor = user?.customRole?.color;
+  const badge = defaultBadge;
 
   function isActive(href: string) {
     return href === "/dashboard" ? path === href : path.startsWith(href);
@@ -131,13 +136,18 @@ export default function Sidebar() {
                 <div className="text-[11px] text-gray-400 truncate">{user.designation || user.email}</div>
               </div>
             </div>
-            {badge && (
-              <div className="mt-2">
+            <div className="mt-2 flex flex-wrap gap-1">
+              {customRoleName && (
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full text-white" style={{ background: customRoleColor || '#6366f1' }}>
+                  {customRoleName}
+                </span>
+              )}
+              {badge && !customRoleName && (
                 <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${badge.bg} ${badge.text}`}>
                   {badge.label}
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         )}
 

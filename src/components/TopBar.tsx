@@ -15,6 +15,8 @@ const PAGE_META: Record<string, { title: string; icon: string }> = {
   "/dashboard/profile":     { title: "My Profile",      icon: "👤" },
   "/dashboard/onboarding":  { title: "Onboarding",      icon: "🚀" },
   "/dashboard/users":       { title: "User Management", icon: "⚙️" },
+  "/dashboard/roles":       { title: "Role Management",  icon: "🔑" },
+  "/dashboard/audit":       { title: "Audit Logs",        icon: "📋" },
 };
 
 export default function TopBar() {

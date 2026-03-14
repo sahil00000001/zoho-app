@@ -199,6 +199,28 @@ export const api = {
   deactivateUser: (id: string) => request(`/api/users/${id}`, { method: 'DELETE' }),
   getDepartments: () => request('/api/users/departments'),
 
+  // Roles & Permissions
+  getRoles: () => request<CustomRole[]>('/api/roles'),
+  getRole: (id: string) => request<CustomRole>(`/api/roles/${id}`),
+  getModules: () => request<AppModule[]>('/api/roles/modules'),
+  getMyPermissions: () => request<MyPermissions>('/api/roles/my-permissions'),
+  createRole: (data: { name: string; description?: string; basePermissionLevel: string; color?: string; moduleKeys: string[] }) =>
+    request('/api/roles', { method: 'POST', body: JSON.stringify(data) }),
+  updateRole: (id: string, data: { name?: string; description?: string; basePermissionLevel?: string; color?: string; moduleKeys?: string[] }) =>
+    request(`/api/roles/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteRole: (id: string) => request(`/api/roles/${id}`, { method: 'DELETE' }),
+  seedRoles: () => request('/api/roles/seed', { method: 'POST' }),
+
+  // Audit Logs
+  getAuditLogs: (params?: { userId?: string; module?: string; action?: string; from?: string; to?: string; limit?: number; offset?: number }) => {
+    const qs = new URLSearchParams(Object.entries(params ?? {}).filter(([,v]) => v !== undefined).map(([k,v]) => [k, String(v)])).toString();
+    return request<{ total: number; logs: AuditLog[]; limit: number; offset: number }>(`/api/audit${qs ? `?${qs}` : ''}`);
+  },
+  getErrorLogs: (params?: { from?: string; to?: string; limit?: number; offset?: number }) => {
+    const qs = new URLSearchParams(Object.entries(params ?? {}).filter(([,v]) => v !== undefined).map(([k,v]) => [k, String(v)])).toString();
+    return request<{ total: number; logs: ErrorLog[]; limit: number; offset: number }>(`/api/audit/errors${qs ? `?${qs}` : ''}`);
+  },
+
   // Tokens
   setTokens,
   clearTokens,
@@ -218,8 +240,58 @@ export interface User {
   joiningDate?: string;
   isActive: boolean;
   managerId?: string;
+  customRoleId?: string;
+  customRole?: { id: string; name: string; color: string };
   department?: { id: string; name: string };
   manager?: { id: string; firstName: string; lastName: string; employeeId: string };
+  permissions?: MyPermissions;
+}
+
+export interface AppModule {
+  key: string;
+  name: string;
+  icon: string;
+}
+
+export interface CustomRole {
+  id: string;
+  name: string;
+  description?: string;
+  basePermissionLevel: string;
+  isSystem: boolean;
+  color: string;
+  createdAt: string;
+  modulePermissions: { moduleKey: string; canAccess: boolean }[];
+  _count?: { users: number };
+}
+
+export interface MyPermissions {
+  customRole: { id: string; name: string; color: string } | null;
+  modules: string[];
+}
+
+export interface AuditLog {
+  id: string;
+  userId?: string;
+  userEmail?: string;
+  userName?: string;
+  action: string;
+  module: string;
+  resourceId?: string;
+  details?: Record<string, unknown>;
+  ipAddress?: string;
+  createdAt: string;
+}
+
+export interface ErrorLog {
+  id: string;
+  message: string;
+  stack?: string;
+  endpoint?: string;
+  method?: string;
+  userId?: string;
+  statusCode?: number;
+  createdAt: string;
 }
 
 export interface DashboardStats {
