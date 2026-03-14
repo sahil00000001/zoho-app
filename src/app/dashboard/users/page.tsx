@@ -32,18 +32,26 @@ export default function UsersPage() {
   const fetchUsers = useCallback(async () => {
     setLoading(true);
     setFetchError('');
-    try {
-      const [u, d] = await Promise.all([
-        api.getUsers({ search: search || undefined, role: roleFilter || undefined }),
-        api.getDepartments(),
-      ]);
-      setUsers(u as User[]);
-      setDepartments(d as Department[]);
-    } catch (err) {
-      setFetchError(err instanceof Error ? err.message : 'Failed to load users');
-    } finally {
-      setLoading(false);
+
+    // Fetch independently so a departments failure doesn't block user list
+    const [usersResult, deptsResult] = await Promise.allSettled([
+      api.getUsers({ search: search || undefined, role: roleFilter || undefined }),
+      api.getDepartments(),
+    ]);
+
+    if (usersResult.status === 'fulfilled') {
+      setUsers(usersResult.value as User[]);
+    } else {
+      const msg = usersResult.reason instanceof Error ? usersResult.reason.message : 'Failed to load users';
+      setFetchError(msg);
     }
+
+    if (deptsResult.status === 'fulfilled') {
+      setDepartments(deptsResult.value as Department[]);
+    }
+    // departments failure is silent — form will just have no options
+
+    setLoading(false);
   }, [search, roleFilter]);
 
   useEffect(() => { fetchUsers(); }, [fetchUsers]);
