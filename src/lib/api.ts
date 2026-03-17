@@ -189,7 +189,11 @@ export const api = {
 
   // Users / Directory
   getUsers: (params?: { role?: string; departmentId?: string; isActive?: string; search?: string }) => {
-    const qs = new URLSearchParams(params as Record<string, string>).toString();
+    const qs = new URLSearchParams(
+      Object.entries(params ?? {})
+        .filter(([, v]) => v !== undefined && v !== null && v !== '' && v !== 'undefined')
+        .map(([k, v]) => [k, v as string])
+    ).toString();
     return request(`/api/users${qs ? `?${qs}` : ''}`);
   },
   getUser: (id: string) => request(`/api/users/${id}`),
