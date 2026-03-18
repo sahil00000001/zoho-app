@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo, useRef } from 'react';
+import { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   ReactFlow,
   Background,
@@ -10,7 +10,6 @@ import {
   useNodesState,
   useEdgesState,
   addEdge,
-  reconnectEdge,
   MarkerType,
   ConnectionLineType,
   ConnectionMode,
@@ -19,7 +18,6 @@ import {
   type Edge,
   type Connection,
   type OnConnect,
-  type OnReconnect,
   type NodeProps,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
@@ -204,7 +202,7 @@ const nodeTypes = { orgNode: OrgNode };
 
 const defaultEdgeOptions = {
   type: 'smoothstep',
-  reconnectable: true,
+  reconnectable: false,   // disabled — causes edge hijacking when creating new connections
   markerEnd: { type: MarkerType.ArrowClosed, color: '#94a3b8', width: 16, height: 16 },
   style: { stroke: '#cbd5e1', strokeWidth: 2 },
   deletable: true,
@@ -227,9 +225,7 @@ export default function OrgChartPage() {
   const [roleFilter, setRoleFilter] = useState('');
   const [pendingChanges, setPendingChanges] = useState<Map<string, string | null>>(new Map());
 
-  const edgeReconnectSuccessful = useRef(true);
-
-  const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
+const showToast = (msg: string, type: 'success' | 'error' = 'success') => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 3000);
   };
@@ -331,45 +327,6 @@ export default function OrgChartPage() {
       n.id === employeeId ? { ...n, data: { ...n.data, isPending: true } } : n
     ));
   }, [canEdit]);
-
-  // ── Edge reconnect ───────────────────────────────────────────────────────────
-  const onReconnectStart = useCallback(() => {
-    edgeReconnectSuccessful.current = false;
-  }, []);
-
-  const onReconnect: OnReconnect = useCallback((oldEdge, newConnection) => {
-    if (!canEdit) return;
-    edgeReconnectSuccessful.current = true;
-    setEdges(eds => reconnectEdge(oldEdge, newConnection, eds));
-
-    const target = newConnection.target!;
-    const source = newConnection.source!;
-    setPendingChanges(prev => {
-      const next = new Map(prev);
-      next.set(target, source);
-      return next;
-    });
-    setNodes(nds => nds.map(n =>
-      n.id === target ? { ...n, data: { ...n.data, isPending: true } } : n
-    ));
-  }, [canEdit]);
-
-  const onReconnectEnd = useCallback((_: unknown, edge: Edge) => {
-    if (!edgeReconnectSuccessful.current) {
-      // Dropped on empty canvas — remove manager
-      setEdges(eds => eds.filter(e => e.id !== edge.id));
-      const target = edge.target;
-      setPendingChanges(prev => {
-        const next = new Map(prev);
-        next.set(target, null);
-        return next;
-      });
-      setNodes(nds => nds.map(n =>
-        n.id === target ? { ...n, data: { ...n.data, isPending: true } } : n
-      ));
-    }
-    edgeReconnectSuccessful.current = true;
-  }, []);
 
   // ── Handle edge delete ────────────────────────────────────────────────────────
   const onEdgesDelete = useCallback((deletedEdges: Edge[]) => {
@@ -514,9 +471,6 @@ export default function OrgChartPage() {
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={canEdit ? onConnect : undefined}
-        onReconnectStart={canEdit ? onReconnectStart : undefined}
-        onReconnect={canEdit ? onReconnect : undefined}
-        onReconnectEnd={canEdit ? onReconnectEnd : undefined}
         onEdgesDelete={canEdit ? onEdgesDelete : undefined}
         onNodeClick={onNodeClick}
         onPaneClick={onPaneClick}
