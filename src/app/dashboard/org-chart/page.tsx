@@ -13,6 +13,7 @@ import {
   reconnectEdge,
   MarkerType,
   ConnectionLineType,
+  ConnectionMode,
   BackgroundVariant,
   type Node,
   type Edge,
@@ -296,25 +297,38 @@ export default function OrgChartPage() {
   }, [users]);
 
   // ── Handle new connection ────────────────────────────────────────────────────
+  // Convention: user drags FROM the employee node TO the manager node.
+  //   params.source = employee (who dragged), params.target = manager (dropped on)
+  //   We store edge as { source: manager, target: employee } for correct top-down visual.
+  //   We record: employee.managerId = manager
   const onConnect: OnConnect = useCallback((params: Connection) => {
     if (!canEdit) return;
     const { source, target } = params;
-    if (!source || !target) return;
+    if (!source || !target || source === target) return;
 
-    // Remove any existing edge where target is the employee (only 1 manager allowed)
+    const employeeId = source; // node dragged FROM = the subordinate
+    const managerId  = target; // node dropped ON  = the manager
+
     setEdges(eds => {
-      const filtered = eds.filter(e => e.target !== target);
-      return addEdge({ ...params, ...defaultEdgeOptions }, filtered);
+      // Remove employee's existing manager edge (each person has at most 1 manager)
+      const filtered = eds.filter(e => e.target !== employeeId);
+      // Add edge: manager (source/top) → employee (target/bottom) — downward arrow ✓
+      return addEdge({
+        id: `e-${managerId}-${employeeId}`,
+        source: managerId,
+        target: employeeId,
+        ...defaultEdgeOptions,
+      }, filtered);
     });
 
     setPendingChanges(prev => {
       const next = new Map(prev);
-      next.set(target, source);
+      next.set(employeeId, managerId); // employee.managerId = manager
       return next;
     });
 
     setNodes(nds => nds.map(n =>
-      n.id === target ? { ...n, data: { ...n.data, isPending: true } } : n
+      n.id === employeeId ? { ...n, data: { ...n.data, isPending: true } } : n
     ));
   }, [canEdit]);
 
@@ -494,7 +508,9 @@ export default function OrgChartPage() {
         edges={edges}
         nodeTypes={nodeTypes}
         defaultEdgeOptions={defaultEdgeOptions}
+        connectionMode={ConnectionMode.Loose}
         connectionLineType={ConnectionLineType.SmoothStep}
+        connectionLineStyle={{ stroke: '#6366f1', strokeWidth: 2, strokeDasharray: '6 3' }}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={canEdit ? onConnect : undefined}
@@ -509,8 +525,8 @@ export default function OrgChartPage() {
         deleteKeyCode={canEdit ? ['Backspace', 'Delete'] : null}
         nodesDraggable
         nodesConnectable={canEdit}
-        minZoom={0.1}
-        maxZoom={1.5}
+        minZoom={0.08}
+        maxZoom={2}
       >
         <Background variant={BackgroundVariant.Dots} gap={20} size={1} color="#e2e8f0" />
         <Controls className="!shadow-lg !rounded-xl !border-0" />
@@ -620,9 +636,9 @@ export default function OrgChartPage() {
         {canEdit && (
           <Panel position="bottom-center">
             <div className="bg-slate-800/80 backdrop-blur-sm text-white text-xs px-4 py-2 rounded-full shadow-lg flex items-center gap-3">
-              <span>🔗 Drag handle → node to set manager</span>
+              <span>🔗 Drag <strong>employee → manager</strong> to set reporting line</span>
               <span className="opacity-50">|</span>
-              <span>↔ Drag edge end to change manager</span>
+              <span>↔ Drag edge endpoint to reassign</span>
               <span className="opacity-50">|</span>
               <span>⌫ Select edge + Delete to remove</span>
             </div>
