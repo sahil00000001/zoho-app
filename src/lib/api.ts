@@ -226,6 +226,13 @@ export const api = {
     return request<{ total: number; logs: ErrorLog[]; limit: number; offset: number }>(`/api/audit/errors${qs ? `?${qs}` : ''}`);
   },
 
+  // Org Chart
+  getOrgChart: () => request('/api/org-chart'),
+  assignManager: (userId: string, managerId: string | null) =>
+    request('/api/org-chart/assign', { method: 'PATCH', body: JSON.stringify({ userId, managerId }) }),
+  bulkAssignManagers: (assignments: { userId: string; managerId: string | null }[]) =>
+    request('/api/org-chart/bulk-assign', { method: 'PATCH', body: JSON.stringify({ assignments }) }),
+
   // Tokens
   setTokens,
   clearTokens,

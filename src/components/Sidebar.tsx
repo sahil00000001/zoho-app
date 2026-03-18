@@ -10,6 +10,7 @@ const ALL_NAV = [
   { href: "/dashboard/leaves",        label: "Leaves",         icon: "🌿",  module: "leaves" },
   { href: "/dashboard/announcements", label: "Announcements",  icon: "📢",  module: "announcements" },
   { href: "/dashboard/directory",     label: "Directory",      icon: "👥",  module: "directory" },
+  { href: "/dashboard/org-chart",     label: "Org Chart",      icon: "🏢",  module: "org-chart" },
   { href: "/dashboard/profile",       label: "My Profile",     icon: "👤",  module: "profile" },
   { href: "/dashboard/onboarding",    label: "Onboarding",     icon: "🚀",  module: "onboarding" },
   { href: "/dashboard/approvals",     label: "Approvals",      icon: "✅",  module: "approvals" },
@@ -28,7 +29,7 @@ const ROLE_BADGES: Record<string, { label: string; bg: string; text: string }> =
 
 const NAV_GROUPS = [
   { label: "Main", items: ["dashboard", "attendance", "leaves", "announcements"] },
-  { label: "Team", items: ["directory", "profile", "onboarding", "approvals"] },
+  { label: "Team", items: ["directory", "org-chart", "profile", "onboarding", "approvals"] },
   { label: "Admin", items: ["documents", "users", "roles", "audit"] },
 ];
 

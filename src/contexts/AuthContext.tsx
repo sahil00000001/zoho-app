@@ -29,6 +29,7 @@ const DEFAULT_MODULE_ACCESS: Record<string, string[]> = {
   users:         ['ADMIN', 'HR'],
   roles:         ['ADMIN'],
   audit:         ['ADMIN', 'HR'],
+  'org-chart':   ['EMPLOYEE', 'MANAGER', 'HR', 'ADMIN'],
 };
 
 export function AuthProvider({ children }: { children: ReactNode }) {
