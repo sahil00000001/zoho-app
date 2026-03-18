@@ -117,13 +117,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const canAccess = useCallback((module: string) => {
     if (!user) return false;
-    // If user has a custom role with explicit permissions, use those
+    const defaultAllowed = (DEFAULT_MODULE_ACCESS[module] || []).includes(user.role);
     if (permissions?.modules) {
-      return permissions.modules.includes(module);
+      // If module is explicitly granted by custom role — allow
+      if (permissions.modules.includes(module)) return true;
+      // Module not in stored role permissions — fall back to role-based default
+      // This handles modules added after the role was originally seeded
+      return defaultAllowed;
     }
-    // Fall back to default role-based access
-    const allowed = DEFAULT_MODULE_ACCESS[module] || [];
-    return allowed.includes(user.role);
+    return defaultAllowed;
   }, [user, permissions]);
 
   return (

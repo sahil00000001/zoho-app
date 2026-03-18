@@ -470,7 +470,7 @@ export default function OrgChartPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-64px)]">
+      <div className="flex items-center justify-center h-full w-full">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-slate-500">Building org chart…</p>
@@ -480,7 +480,7 @@ export default function OrgChartPage() {
   }
 
   return (
-    <div className="relative" style={{ height: 'calc(100vh - 64px)' }}>
+    <div className="relative w-full h-full">
       {/* ── Toast ─────────────────────────────────────────────────── */}
       {toast && (
         <div className={`fixed top-4 right-4 z-50 px-5 py-3 rounded-xl shadow-xl text-sm font-medium text-white transition-all ${toast.type === 'success' ? 'bg-emerald-500' : 'bg-red-500'}`}>
